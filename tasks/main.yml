@@ -1,2 +1,19 @@
 ---
-# tasks file for duffmck.user
+- name: "Make sure we have {{ group }} group"
+  group:
+    name: "{{ group }}"
+    state: present
+- name: "Allow '{{ group }}' group to have passwordless sudo"
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%{{ group }}'
+    line: '%{{ group }} ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+- name: "Create {{ user }} user"
+  user:
+    name: "{{ user }}"
+    group: "{{ group }}"
+    create_home: yes
+    shell: "{{ shell | default(shell) }}"
+    state: present
